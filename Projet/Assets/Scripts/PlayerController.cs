@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
         {
             m_MoveDir = transform.forward;
         }
-        else if (Input.GetKeyUp(KeyCode.RightArrow) && m_CanDodgeUp)
+        else if (Input.GetKeyUp(KeyCode.RightArrow) && m_CanDodgeRight)
         {
             StartCoroutine(CanDodgeRightTimer());
         }
@@ -94,7 +94,7 @@ public class PlayerController : MonoBehaviour
         {
             m_MoveDir = transform.right;
         }
-        else if (Input.GetKeyUp(KeyCode.DownArrow) && m_CanDodgeUp)
+        else if (Input.GetKeyUp(KeyCode.DownArrow) && m_CanDodgeDown)
         {
             StartCoroutine(CanDodgeDownTimer());
         }
