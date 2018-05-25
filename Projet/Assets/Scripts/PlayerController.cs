@@ -4,23 +4,29 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Rigidbody m_Player1;
-    public Rigidbody m_Player2;
+    public Rigidbody m_Player;
+    public Rigidbody Ennemy;
     public float m_PlayerSpeed = 10f;
+    public float m_PlayerDashSpeed = 20f;
 
-    public float m_DodgeTimer = 0f;
-    public float m_DodgeDuration = 0f;
-    private bool m_CanDodgeUp = false;
-    private bool m_UpDodgeActive = false;
-    private bool m_CanDodgeDown = false;
-    private bool m_DownDodgeActive = false;
-    private bool m_CanDodgeLeft = false;
-    private bool m_LeftDodgeActive = false;
-    private bool m_CanDodgeRight = false;
-    private bool m_RightDodgeActive = false;
+    private float m_DashTimer = 0.2f;
+    private float m_DashDuration = 0.3f;
+    private float m_DashRecuperation = 0.5f;
+    private bool m_CanDashUp = false;
+    private bool m_UpDashActive = false;
+    private bool m_CanDashDown = false;
+    private bool m_DownDashActive = false;
+    private bool m_CanDashLeft = false;
+    private bool m_LeftDashActive = false;
+    private bool m_CanDashRight = false;
+    private bool m_RightDashActive = false;
+
     private Quaternion m_PlayerRot;
     private Vector3 m_TargetPosition = new Vector3();
     private Vector3 m_MoveDir = new Vector3();
+
+    public float m_Life = 100f;
+    public float m_DashCost = 10f;
 
     private void Start()
     {
@@ -29,84 +35,95 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        m_TargetPosition = m_Player2.transform.position;
+        m_TargetPosition = Ennemy.transform.position;
         this.transform.LookAt(m_TargetPosition);
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            StartCoroutine(CanDodgeLeftTimer());
+            StartCoroutine(CanDashLeftTimer());
         }
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            m_MoveDir = -transform.forward;
+            m_MoveDir = transform.forward;
         }
-        else if (Input.GetKeyUp(KeyCode.LeftArrow) && m_CanDodgeLeft)
+        else if (Input.GetKeyUp(KeyCode.LeftArrow) && m_CanDashLeft)
         {
-            StartCoroutine(CanDodgeLeftTimer());
+            StartCoroutine(CanDashLeftTimer());
+            m_Life -= m_DashCost;
+            StartCoroutine(DashRecovery());
         }
-        else if (m_LeftDodgeActive)
+        else if (m_LeftDashActive)
         {
-            m_PlayerSpeed = 20f;
-            m_MoveDir = -transform.forward;
+            m_PlayerSpeed = m_PlayerDashSpeed;
+            m_MoveDir = transform.forward;
         }
-
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            StartCoroutine(CanDodgeRightTimer());
+            StartCoroutine(CanDashRightTimer());
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
-            m_MoveDir = transform.forward;
+            m_MoveDir = -transform.forward;
         }
-        else if (Input.GetKeyUp(KeyCode.RightArrow) && m_CanDodgeRight)
+        else if (Input.GetKeyUp(KeyCode.RightArrow) && m_CanDashRight)
         {
-            StartCoroutine(CanDodgeRightTimer());
+            StartCoroutine(CanDashRightTimer());
+            m_Life -= m_DashCost;
+            StartCoroutine(DashRecovery());
         }
-        else if (m_RightDodgeActive)
+        else if (m_RightDashActive)
         {
-            m_PlayerSpeed = 20f;
-            m_MoveDir = transform.forward;
+            m_PlayerSpeed = m_PlayerDashSpeed;
+            m_MoveDir = -transform.forward;
         }
 
         else if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            StartCoroutine(CanDodgeUpTimer());
+            StartCoroutine(CanDashUpTimer());
+
         }
         else if (Input.GetKey(KeyCode.UpArrow))
         {
-            m_MoveDir = -transform.right;
+            m_MoveDir = transform.right;
         }
-        else if (Input.GetKeyUp(KeyCode.UpArrow) && m_CanDodgeUp)
+        else if (Input.GetKeyUp(KeyCode.UpArrow) && m_CanDashUp)
         {
-            StartCoroutine(CanDodgeUpTimer());
+            StartCoroutine(CanDashUpTimer());
+            m_Life -= m_DashCost;
+            StartCoroutine(DashRecovery());
         }
-        else if (m_UpDodgeActive)
+        else if (m_UpDashActive)
         {
-            m_PlayerSpeed = 20f;
-            m_MoveDir = -transform.right;
+            m_PlayerSpeed = m_PlayerDashSpeed;
+            m_MoveDir = transform.right;
         }
 
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            StartCoroutine(CanDodgeDownTimer());
+            StartCoroutine(CanDashDownTimer());
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
-            m_MoveDir = transform.right;
+            m_MoveDir = -transform.right;
         }
-        else if (Input.GetKeyUp(KeyCode.DownArrow) && m_CanDodgeDown)
+        else if (Input.GetKeyUp(KeyCode.DownArrow) && m_CanDashDown)
         {
-            StartCoroutine(CanDodgeDownTimer());
+            StartCoroutine(CanDashDownTimer());
+            m_Life -= m_DashCost;
+            StartCoroutine(DashRecovery());
         }
-        else if (m_DownDodgeActive)
+        else if (m_DownDashActive)
         {
-            m_PlayerSpeed = 20f;
-            m_MoveDir = transform.right;
+            m_PlayerSpeed = m_PlayerDashSpeed;
+            m_MoveDir = -transform.right;
         }
 
         else
         {
-            m_PlayerSpeed = 10f;
+            if (m_PlayerSpeed > 10f)
+            {
+                m_PlayerSpeed = 10f;
+            }
             m_MoveDir = Vector3.zero;
         }
     }
@@ -114,59 +131,72 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         m_MoveDir *= m_PlayerSpeed;
-        m_MoveDir.y = m_Player1.velocity.y;
-        m_Player1.velocity = m_MoveDir;
+        m_MoveDir.y = m_Player.velocity.y;
+        m_Player.velocity = m_MoveDir;
     }
 
-    private IEnumerator CanDodgeUpTimer()
+    private IEnumerator CanDashUpTimer()
     {
-        m_CanDodgeUp = true;
-        yield return new WaitForSeconds(0.3f);
-        m_CanDodgeUp = false;
+        m_CanDashUp = true;
+        yield return new WaitForSeconds(m_DashTimer);
+        m_CanDashUp = false;
     }
-    private IEnumerator UpDodgeIsActiveTimer()
+    private IEnumerator UpDashIsActiveTimer()
     {
-        m_UpDodgeActive = true;
-        yield return new WaitForSeconds(0.5f);
-        m_UpDodgeActive = false;
-    }
-
-    private IEnumerator CanDodgeDownTimer()
-    {
-        m_CanDodgeDown = true;
-        yield return new WaitForSeconds(0.3f);
-        m_CanDodgeDown = false;
-    }
-    private IEnumerator DownDodgeIsActiveTimer()
-    {
-        m_DownDodgeActive = true;
-        yield return new WaitForSeconds(0.5f);
-        m_DownDodgeActive = false;
+        m_UpDashActive = true;
+        yield return new WaitForSeconds(m_DashDuration);
+        m_UpDashActive = false;
     }
 
-    private IEnumerator CanDodgeLeftTimer()
+    private IEnumerator CanDashDownTimer()
     {
-        m_CanDodgeLeft = true;
-        yield return new WaitForSeconds(0.3f);
-        m_CanDodgeLeft = false;
+        m_CanDashDown = true;
+        yield return new WaitForSeconds(m_DashTimer);
+        m_CanDashDown = false;
     }
-    private IEnumerator LeftDodgeIsActiveTimer()
+    private IEnumerator DownDashIsActiveTimer()
     {
-        m_LeftDodgeActive = true;
-        yield return new WaitForSeconds(0.5f);
-        m_LeftDodgeActive = false;
+        m_DownDashActive = true;
+        yield return new WaitForSeconds(m_DashDuration);
+        m_DownDashActive = false;
     }
 
-    private IEnumerator CanDodgeRightTimer()
+    private IEnumerator CanDashLeftTimer()
     {
-        m_CanDodgeRight = true;
-        yield return new WaitForSeconds(0.3f);
-        m_CanDodgeRight = false;
+        m_CanDashLeft = true;
+        yield return new WaitForSeconds(m_DashTimer);
+        m_CanDashLeft = false;
     }
-    private IEnumerator RightDodgeIsActiveTimer()
+    private IEnumerator LeftDashIsActiveTimer()
     {
-        m_RightDodgeActive = true;
-        yield return new WaitForSeconds(0.5f);
-        m_RightDodgeActive = false;
+        m_LeftDashActive = true;
+        yield return new WaitForSeconds(m_DashDuration);
+        m_LeftDashActive = false;
     }
+
+    private IEnumerator CanDashRightTimer()
+    { 
+        m_CanDashRight = true;
+        yield return new WaitForSeconds(m_DashTimer);
+        m_CanDashRight = false;
+    }
+    private IEnumerator RightDashIsActiveTimer()
+    {
+        m_RightDashActive = true;
+        yield return new WaitForSeconds(m_DashDuration);
+        m_RightDashActive = false;
+    }
+
+     private IEnumerator DashRecovery()
+     {
+         int i = 0;
+         Debug.Log("DashRecovery");
+
+         while  (i != m_DashCost)
+         {
+             yield return new WaitForSeconds(m_DashRecuperation);
+             m_Life++;
+             i++;
+         }
+     }
 }
