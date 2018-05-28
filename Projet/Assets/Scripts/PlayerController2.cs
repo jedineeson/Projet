@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController2 : MonoBehaviour
 {
-    
     public Rigidbody m_Player;
-    public Rigidbody m_Ennemy;
+    public Rigidbody Ennemy;
     public float m_PlayerSpeed = 10f;
     public float m_PlayerRotationSpeed = 100f;
     public float m_PlayerDashSpeed = 20f;
@@ -25,14 +24,11 @@ public class PlayerController : MonoBehaviour
     private bool m_RightDashActive = false;
 
     private Quaternion m_PlayerRot;
-    private Vector3 m_EnnemyPosition = new Vector3();
-    private Vector3 m_PlayerPosition = new Vector3();
+    private Vector3 m_TargetPosition = new Vector3();
     private Vector3 m_MoveDir = new Vector3();
 
     public float m_Life = 100f;
     public float m_DashCost = 10f;
-
-    private float m_DistanceBetweenPlayer;
 
     private void Start()
     {
@@ -41,22 +37,19 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-
-        m_DistanceBetweenPlayer = Vector3.Distance(m_Player.transform.position, m_Ennemy.transform.position); 
-
-        m_EnnemyPosition = m_Ennemy.transform.position;
-        this.transform.LookAt(m_EnnemyPosition);
+        m_TargetPosition = Ennemy.transform.position;
+        this.transform.LookAt(m_TargetPosition);
         
         //Left Arrow
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.A))
         {
             StartCoroutine(CanDashLeftTimer());
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.A))
         {
-            m_MoveDir = transform.forward;
+            m_MoveDir = -transform.forward;
         }
-        else if (Input.GetKeyUp(KeyCode.LeftArrow) && m_CanDashLeft)
+        else if (Input.GetKeyUp(KeyCode.A) && m_CanDashLeft)
         {
             StartCoroutine(CanDashLeftTimer());
             m_Life -= m_DashCost;
@@ -65,19 +58,19 @@ public class PlayerController : MonoBehaviour
         else if (m_LeftDashActive)
         {
             m_PlayerSpeed = m_PlayerDashSpeed;
-            m_MoveDir = transform.forward;
+            m_MoveDir = -transform.forward;
         }
 
         //Right Arrow
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.D))
         {
             StartCoroutine(CanDashRightTimer());
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.D))
         {
-            m_MoveDir = -transform.forward;
+            m_MoveDir = transform.forward;
         }
-        else if (Input.GetKeyUp(KeyCode.RightArrow) && m_CanDashRight)
+        else if (Input.GetKeyUp(KeyCode.D) && m_CanDashRight)
         {
             StartCoroutine(CanDashRightTimer());
             m_Life -= m_DashCost;
@@ -86,21 +79,21 @@ public class PlayerController : MonoBehaviour
         else if (m_RightDashActive)
         {
             m_PlayerSpeed = m_PlayerDashSpeed;
-            m_MoveDir = -transform.forward;
+            m_MoveDir = transform.forward;
         }
 
         //Up Arrow
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        else if (Input.GetKeyDown(KeyCode.W))
         {
             StartCoroutine(CanDashUpTimer());
 
         }
-        else if (Input.GetKey(KeyCode.UpArrow))
+        else if (Input.GetKey(KeyCode.W))
         {
-            transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
             //m_MoveDir = transform.right;
         }
-        else if (Input.GetKeyUp(KeyCode.UpArrow) && m_CanDashUp)
+        else if (Input.GetKeyUp(KeyCode.W) && m_CanDashUp)
         {
             StartCoroutine(UpDashIsActiveTimer());
             m_Life -= m_DashCost;
@@ -110,22 +103,22 @@ public class PlayerController : MonoBehaviour
         {
             //m_PlayerSpeed = m_PlayerDashSpeed;
             m_PlayerRotationSpeed = m_PlayerRotationDashSpeed;
-            transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
             //m_MoveDir = transform.right;
         }
 
         //Down Arrow
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Input.GetKeyDown(KeyCode.S))
         {
             StopCoroutine("CanDashDownTimer");
             StartCoroutine(CanDashDownTimer());
         }
-        else if (Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.S))
         {
-            transform.RotateAround(m_EnnemyPosition, Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
             //m_MoveDir = -transform.right;
         }
-        else if (Input.GetKeyUp(KeyCode.DownArrow) && m_CanDashDown)
+        else if (Input.GetKeyUp(KeyCode.S) && m_CanDashDown)
         {
             StartCoroutine(DownDashIsActiveTimer());
             m_Life -= m_DashCost;
@@ -134,7 +127,7 @@ public class PlayerController : MonoBehaviour
         else if (m_DownDashActive)
         {
             m_PlayerRotationSpeed = m_PlayerRotationDashSpeed;
-            transform.RotateAround(m_EnnemyPosition, Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
             //m_MoveDir = -transform.right;
         }
 
@@ -165,8 +158,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator UpDashIsActiveTimer()
     {
         m_UpDashActive = true;
-        //yield return new WaitForSeconds(m_DashDuration);
-        yield return new WaitForSeconds((m_DistanceBetweenPlayer * 45) / 4);
+        yield return new WaitForSeconds(m_DashDuration);
         m_UpDashActive = false;
         m_PlayerRotationSpeed = 100f;
     }
@@ -180,8 +172,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator DownDashIsActiveTimer()
     {
         m_DownDashActive = true;
-        //yield return new WaitForSeconds(m_DashDuration);
-        yield return new WaitForSeconds((m_DistanceBetweenPlayer * 45) / 4);
+        yield return new WaitForSeconds(m_DashDuration);
         m_DownDashActive = false;
         m_PlayerRotationSpeed = 100f;
     }
