@@ -8,7 +8,8 @@ public class PlayerController : MonoBehaviour
     public Rigidbody m_Player;
     public Rigidbody m_Ennemy;
     public float m_PlayerSpeed = 10f;
-    public float m_PlayerRotationSpeed = 100f;
+    public float m_PlayerRotationSpeed = 20f;
+    public float m_PlayerRotationDegree = 15f;
     public float m_PlayerDashSpeed = 20f;
     public float m_PlayerRotationDashSpeed = 300f;
 
@@ -45,7 +46,7 @@ public class PlayerController : MonoBehaviour
         m_DistanceBetweenPlayer = Vector3.Distance(m_Player.transform.position, m_Ennemy.transform.position); 
 
         m_EnnemyPosition = m_Ennemy.transform.position;
-        this.transform.LookAt(m_EnnemyPosition);
+        //this.transform.LookAt(m_EnnemyPosition);
         
         //Left Arrow
         if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -97,7 +98,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.UpArrow))
         {
-            transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationSpeed);// * Time.deltaTime);
             //m_MoveDir = transform.right;
         }
         else if (Input.GetKeyUp(KeyCode.UpArrow) && m_CanDashUp)
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour
         {
             //m_PlayerSpeed = m_PlayerDashSpeed;
             m_PlayerRotationSpeed = m_PlayerRotationDashSpeed;
-            transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            //transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationDegree * Time.deltaTime);
             //m_MoveDir = transform.right;
         }
 
@@ -134,7 +135,7 @@ public class PlayerController : MonoBehaviour
         else if (m_DownDashActive)
         {
             m_PlayerRotationSpeed = m_PlayerRotationDashSpeed;
-            transform.RotateAround(m_EnnemyPosition, Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_EnnemyPosition, Vector3.up, m_PlayerRotationDegree * Time.deltaTime);
             //m_MoveDir = -transform.right;
         }
 
@@ -165,8 +166,8 @@ public class PlayerController : MonoBehaviour
     private IEnumerator UpDashIsActiveTimer()
     {
         m_UpDashActive = true;
-        //yield return new WaitForSeconds(m_DashDuration);
-        yield return new WaitForSeconds((m_DistanceBetweenPlayer * 45) / 4);
+        transform.RotateAround(m_EnnemyPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+        yield return new WaitForSeconds(1f);
         m_UpDashActive = false;
         m_PlayerRotationSpeed = 100f;
     }
@@ -181,7 +182,7 @@ public class PlayerController : MonoBehaviour
     {
         m_DownDashActive = true;
         //yield return new WaitForSeconds(m_DashDuration);
-        yield return new WaitForSeconds((m_DistanceBetweenPlayer * 45) / 4);
+        yield return new WaitForSeconds(1f);
         m_DownDashActive = false;
         m_PlayerRotationSpeed = 100f;
     }

@@ -9,7 +9,7 @@ public class PlayerController2 : MonoBehaviour
     public float m_PlayerSpeed = 10f;
     public float m_PlayerRotationSpeed = 100f;
     public float m_PlayerDashSpeed = 20f;
-    public float m_PlayerRotationDashSpeed = 300f;
+    public float m_PlayerRotationDashSpeed = 150f;
 
     private float m_DashTimer = 0.2f;
     private float m_DashDuration = 0.2f;
@@ -103,7 +103,7 @@ public class PlayerController2 : MonoBehaviour
         {
             //m_PlayerSpeed = m_PlayerDashSpeed;
             m_PlayerRotationSpeed = m_PlayerRotationDashSpeed;
-            transform.RotateAround(m_TargetPosition, Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, Vector3.up, m_PlayerRotationDashSpeed * Time.deltaTime);
             //m_MoveDir = transform.right;
         }
 
@@ -115,7 +115,7 @@ public class PlayerController2 : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            transform.RotateAround(m_TargetPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, -Vector3.up, m_PlayerRotationDashSpeed * Time.deltaTime);
             //m_MoveDir = -transform.right;
         }
         else if (Input.GetKeyUp(KeyCode.S) && m_CanDashDown)
@@ -127,7 +127,7 @@ public class PlayerController2 : MonoBehaviour
         else if (m_DownDashActive)
         {
             m_PlayerRotationSpeed = m_PlayerRotationDashSpeed;
-            transform.RotateAround(m_TargetPosition, -Vector3.up, m_PlayerRotationSpeed * Time.deltaTime);
+            transform.RotateAround(m_TargetPosition, -Vector3.up, m_PlayerRotationDashSpeed * Time.deltaTime);
             //m_MoveDir = -transform.right;
         }
 
