@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
 
     private Quaternion m_PlayerRot;
     private Vector3 m_EnnemyPosition = new Vector3();
-    private Vector3 m_PlayerPosition = new Vector3();
+    //private Vector3 m_PlayerPosition = new Vector3();
     private Vector3 m_MoveDir = new Vector3();
 
     public float m_Life = 100f;
