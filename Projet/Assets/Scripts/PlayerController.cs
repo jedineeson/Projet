@@ -4,55 +4,17 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour 
 {
+    //Stamina/Vie maximum
+	[HideInInspector]
+    public float m_Life = 100f;
+
+	[SerializeField]
+	private PlayerData m_Data;
+
     //Pour les Inputs
     [SerializeField]
     [Range(1,2)]
     private int m_PlayerID;
-
-    //Combien de temps dure un dash?
-    [SerializeField]
-    private float m_IsDashingTimer = 0.15f;
-
-    //Vitesse maximum du déplacement du joueur
-    [SerializeField]
-    private float m_ZMoveSpeed = 50f;
-    [SerializeField]
-    private float m_ZDashSpeed = 800f;
-    private float m_RelativeZDashSpeed;
-    [SerializeField]
-    private float m_ZBloqueSpeed = 25f;
-
-    //Vitesse maximum du déplacement du joueur
-    [SerializeField]
-    private float m_XMoveSpeed = 5f;
-    [SerializeField]
-    private float m_XDashSpeed = 15f;
-    [SerializeField]
-    private float m_XBloqueSpeed = 2.5f;
-
-    //Vitesse qu'on récupère du stamina/vie
-    [SerializeField]
-    private float m_RecoveryTime = 4f;
-    //Stamina/Vie maximum
-    
-    public float m_Life = 100f;
-
-    //Coût en stamina/vie d'un Dash
-    [SerializeField]
-    private float m_DashCost = 10f;
-    //Coût en stamina/vie d'une attack
-    [SerializeField]
-    private float m_NormalAttackCost = 10f;
-    [SerializeField]
-    private float m_NormalAttackDamage = 20f;
-    [SerializeField]
-    private float m_RangeAttackCost = 10f;
-    [SerializeField]
-    private float m_RangeAttackDamage = 10f;
-
-    //Temps entre le double tap
-    [SerializeField]
-    private float m_DoubleTapDelay = 0.5f;
 
     [SerializeField]
     private GameObject m_AttackRangeBullet;
@@ -78,12 +40,34 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private PlayerController m_EnnemyController;
 
+    //Combien de temps dure un dash?
+    private float m_IsDashingTimer = 0.15f;
+    //Vitesse maximum du déplacement du joueur
+    private float m_ZMoveSpeed = 50f;
+    private float m_ZDashSpeed = 800f;
+    private float m_ZBloqueSpeed = 25f;
+	//Vitesse maximum du déplacement du joueur
+    private float m_XMoveSpeed = 5f;
+    private float m_XDashSpeed = 15f;
+    private float m_XBloqueSpeed = 2.5f;
+    //Vitesse qu'on récupère du stamina/vie
+    private float m_RecoveryTime = 4f;
+    //Coût en stamina/vie d'un Dash
+    private float m_DashCost = 10f;
+    //Coût en stamina/vie d'une attack
+    private float m_NormalAttackCost = 10f;
+    private float m_NormalAttackDamage = 20f;
+    private float m_RangeAttackCost = 10f;
+    private float m_RangeAttackDamage = 10f;
+    //Temps entre le double tap
+    private float m_DoubleTapDelay = 0.5f;
 
     private int m_TapCountX = 0;
 	private int m_TapCountZ = 0;
     //Timer du double tap
     private float m_CurrentDoubleTapTime = 0f;
     private float m_Distance;
+	private float m_RelativeZDashSpeed;
     //Vitesse de déplacement actuel du joueur en X
     private float m_ActualSpeedX  = 0f;
 	//Vitesse de déplacement actuel du joueur en Z
@@ -110,6 +94,22 @@ public class PlayerController : MonoBehaviour
 
 	private void Start()
 	{
+		m_IsDashingTimer = m_Data.IsDashingTimer;
+    	m_ZMoveSpeed = m_Data.ZMoveSpeed;
+    	m_ZDashSpeed = m_Data.ZDashSpeed;
+    	m_ZBloqueSpeed = m_Data.ZBloqueSpeed;
+    	m_XMoveSpeed = m_Data.XMoveSpeed;
+    	m_XDashSpeed = m_Data.XDashSpeed;
+    	m_XBloqueSpeed = m_Data.XBloqueSpeed;
+    	m_RecoveryTime = m_Data.RecoveryTime;
+    	m_DashCost = m_Data.DashCost;
+    	m_NormalAttackCost = m_Data.NormalAttackCost;
+    	m_NormalAttackDamage = m_Data.NormalAttackDamage;
+    	m_RangeAttackCost = m_Data.RangeAttackCost;
+    	m_RangeAttackDamage = m_Data.RangeAttackDamage;
+    	m_DoubleTapDelay = m_Data.DoubleTapDelay;
+		m_Life = m_Data.Life;
+
 		m_ActualSpeedX = m_XMoveSpeed;
 		m_ActualSpeedZ = m_ZMoveSpeed;
 		m_BloqueObject.SetActive(false);
@@ -138,7 +138,7 @@ public class PlayerController : MonoBehaviour
 		{
 			m_Life -= m_NormalAttackCost;
         	m_AttackAnimation.Play("Attack");
-            m_Recovery += m_NormalAttackCost;
+			m_Recovery += m_NormalAttackCost;
 		}
 		else if(Input.GetButtonDown("Fire2_p" + m_PlayerID) && m_Life >= m_RangeAttackCost+1)
 		{    
@@ -158,18 +158,14 @@ public class PlayerController : MonoBehaviour
 			m_Life += 1 * (Time.deltaTime * m_RecoveryTime);
 		}
 
-		if(m_IsDashingHorizontal || m_CanBloque)
+		if(m_IsDashingHorizontal || m_IsDashingVertical || m_CanBloque)
 		{
 			return;
 		}
-		else if (m_IsDashingVertical || m_CanBloque)
-        {
-            return;
-        }
 
 		if(m_Life <= 0)
 		{
-			Destroy(m_Player.gameObject);
+			Destroy(gameObject);
 		}
 
 
@@ -277,36 +273,30 @@ public class PlayerController : MonoBehaviour
 	private void OnTriggerEnter(Collider aOther)
 	{
 		if (aOther.gameObject.layer == LayerMask.NameToLayer("Weapon"))
-		{			
-			if(m_CanBloque)
-			{
-				m_Life -= m_NormalAttackCost;
-				m_Recovery += m_NormalAttackCost;
-				m_EnnemyController.m_Recovery += m_NormalAttackCost;
-			}
-			else
-			{
-				m_Life -= m_NormalAttackDamage;
-                m_EnnemyController.m_Life += m_EnnemyController.m_Recovery;
-                m_EnnemyController.m_Recovery = 0;
+		{		
+			float Recovery = m_CanBloque == true ? m_NormalAttackDamage : 0f;
 
+			m_Life -= m_NormalAttackDamage;
+			m_Recovery += Recovery;
+
+			if(!m_CanBloque)
+			{
+				m_EnnemyController.m_Life += m_EnnemyController.m_Recovery;
+				m_EnnemyController.m_Recovery = 0; 
 			}
 		}
 		
 		if (aOther.gameObject.layer == LayerMask.NameToLayer("Bullet"))
+		{			
+			float DamageTake = m_CanBloque == true ? m_RangeAttackDamage/2 : m_RangeAttackDamage;
+			m_Life -= DamageTake;
+			Debug.Log("DamageTake: " + DamageTake + "Life: " + m_Life);
+			Destroy(aOther.gameObject);
+		}
+
+		if(aOther.gameObject.layer == LayerMask.NameToLayer("Boundary"))
 		{
-			Debug.Log("Got Shot!");
-			
-			if(m_CanBloque)
-			{
-				m_Life -= m_RangeAttackDamage/2;
-				Destroy(aOther.gameObject);
-			}
-			else
-			{
-				m_Life -= m_RangeAttackDamage;
-				Destroy(aOther.gameObject);
-			}
+			Destroy(gameObject);
 		}
 	}
 }

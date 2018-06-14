@@ -12,4 +12,13 @@ public class RangeAttack : MonoBehaviour
         m_RigidBody.velocity = transform.forward * m_Speed;
     }
 
+
+	private void OnTriggerEnter(Collider aOther)
+	{
+        if(aOther.gameObject.layer == LayerMask.NameToLayer("Boundary"))
+	    {
+	    	Destroy(gameObject);
+    	}
+    }
+
 }

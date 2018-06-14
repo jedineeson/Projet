@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: a0fcb100681fc3b49aaa2bcc69a30616
-timeCreated: 1527174474
+guid: 07d4120156bcbff4481cc93ccb40d5ef
+timeCreated: 1528990490
 licenseType: Pro
 ModelImporter:
   serializedVersion: 22
@@ -10,7 +10,7 @@ ModelImporter:
     2100000: lambert1
     2300000: //RootNode
     3300000: //RootNode
-    4300000: pCylinder1
+    4300000: pSphere18
   externalObjects: {}
   materials:
     importMaterials: 1
