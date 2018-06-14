@@ -7,16 +7,16 @@ public class LifeStaminaBar : MonoBehaviour
 {
 	public Image m_LifeBar1;
 	public Image m_LifeBar2;
-	private Player1Controller m_Player1;	
-	private Player1Controller m_Player2;	
+	private PlayerController m_Player1;	
+	private PlayerController m_Player2;	
 	private float m_Life1;
 	private float m_Life2;
 	private float m_MaxLife = 100;
 
 	private void Awake()
 	{
-		m_Player1 = GameObject.FindGameObjectWithTag("Player1").GetComponent<Player1Controller>();
-		m_Player2 = GameObject.FindGameObjectWithTag("Player2").GetComponent<Player1Controller>();
+		m_Player1 = GameObject.FindGameObjectWithTag("Player1").GetComponent<PlayerController>();
+		m_Player2 = GameObject.FindGameObjectWithTag("Player2").GetComponent<PlayerController>();
 	}
 	void Start () 
 	{
