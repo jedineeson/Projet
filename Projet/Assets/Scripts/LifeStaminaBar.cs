@@ -25,9 +25,9 @@ public class LifeStaminaBar : MonoBehaviour
 	
 	void Update () 
 	{
-		m_Life1 = m_Player1.m_Life;
+		m_Life1 = m_Player1.Life;
 		m_LifeBar1.fillAmount = m_Life1 / m_MaxLife;
-		m_Life2 = m_Player2.m_Life;
+		m_Life2 = m_Player2.Life;
 		m_LifeBar2.fillAmount = m_Life2 / m_MaxLife;
 	}
 }

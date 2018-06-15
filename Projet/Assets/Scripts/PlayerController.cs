@@ -5,8 +5,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour 
 {
     //Stamina/Vie maximum
-	[HideInInspector]
-    public float m_Life = 100f;
+    private float m_Life;
+	public float Life
+	{
+		get{return m_Life;}
+	}
 
 	[SerializeField]
 	private PlayerData m_Data;
@@ -41,26 +44,26 @@ public class PlayerController : MonoBehaviour
     private PlayerController m_EnnemyController;
 
     //Combien de temps dure un dash?
-    private float m_IsDashingTimer = 0.15f;
+    private float m_IsDashingTimer;
     //Vitesse maximum du déplacement du joueur
-    private float m_ZMoveSpeed = 50f;
-    private float m_ZDashSpeed = 800f;
-    private float m_ZBloqueSpeed = 25f;
+    private float m_ZMoveSpeed;
+    private float m_ZDashSpeed;
+    private float m_ZBloqueSpeed;
 	//Vitesse maximum du déplacement du joueur
-    private float m_XMoveSpeed = 5f;
-    private float m_XDashSpeed = 15f;
-    private float m_XBloqueSpeed = 2.5f;
+    private float m_XMoveSpeed;
+    private float m_XDashSpeed;
+    private float m_XBloqueSpeed;
     //Vitesse qu'on récupère du stamina/vie
-    private float m_RecoveryTime = 4f;
+    private float m_RecoveryTime;
     //Coût en stamina/vie d'un Dash
-    private float m_DashCost = 10f;
+    private float m_DashCost;
     //Coût en stamina/vie d'une attack
-    private float m_NormalAttackCost = 10f;
-    private float m_NormalAttackDamage = 20f;
-    private float m_RangeAttackCost = 10f;
-    private float m_RangeAttackDamage = 10f;
+    private float m_NormalAttackCost;
+    private float m_NormalAttackDamage;
+    private float m_RangeAttackCost;
+    private float m_RangeAttackDamage;
     //Temps entre le double tap
-    private float m_DoubleTapDelay = 0.5f;
+    private float m_DoubleTapDelay;
 
     private int m_TapCountX = 0;
 	private int m_TapCountZ = 0;
@@ -274,7 +277,7 @@ public class PlayerController : MonoBehaviour
 	{
 		if (aOther.gameObject.layer == LayerMask.NameToLayer("Weapon"))
 		{		
-			float Recovery = m_CanBloque == true ? m_NormalAttackDamage : 0f;
+			float Recovery = m_CanBloque ? m_NormalAttackDamage : 0f;
 
 			m_Life -= m_NormalAttackDamage;
 			m_Recovery += Recovery;
@@ -288,7 +291,7 @@ public class PlayerController : MonoBehaviour
 		
 		if (aOther.gameObject.layer == LayerMask.NameToLayer("Bullet"))
 		{			
-			float DamageTake = m_CanBloque == true ? m_RangeAttackDamage/2 : m_RangeAttackDamage;
+			float DamageTake = m_CanBloque ? m_RangeAttackDamage/2 : m_RangeAttackDamage;
 			m_Life -= DamageTake;
 			Debug.Log("DamageTake: " + DamageTake + "Life: " + m_Life);
 			Destroy(aOther.gameObject);
