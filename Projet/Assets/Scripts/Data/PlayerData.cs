@@ -27,7 +27,7 @@ public class PlayerData : ScriptableObject
     private float m_RecoveryTime = 4f;
 	//Stamina/Vie maximum
     [SerializeField]
-	private float m_Life = 100f;
+	private float m_DataLife = 100f;
 	//Coût en stamina/vie d'un Dash
     [SerializeField]
     private float m_DashCost = 10f;
@@ -76,7 +76,7 @@ public class PlayerData : ScriptableObject
 	
 	public float XBloqueSpeed
 	{
-		get{return m_ZDashSpeed;}
+		get{return m_XBloqueSpeed;}
 	}	
 
 	public float RecoveryTime
@@ -84,9 +84,9 @@ public class PlayerData : ScriptableObject
 		get{return m_RecoveryTime;}
 	}
 
-	public float Life
+	public float LifeData
 	{
-		get{return m_Life;}
+		get{return m_DataLife;}
 	}
 
 	public float DashCost

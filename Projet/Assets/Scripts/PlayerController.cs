@@ -26,14 +26,19 @@ public class PlayerController : MonoBehaviour
     //Cylindre pour illustrer le blocage
     [SerializeField]
     private GameObject m_BloqueObject;
-
+    [SerializeField]
+    private GameObject m_BloqueObject2;
     //Cube pour illustrer l'attaque
     [SerializeField]
     private GameObject m_AttackObject;
+	[SerializeField]
+    private GameObject m_AttackObject2;
     //Animation de l'attaque
     [SerializeField]
     private Animator m_AttackAnimation;
-
+    //Animation de l'attaque
+    [SerializeField]
+    private Animator m_AttackAnimation2;
     //Mon Player
     [SerializeField]
     private Rigidbody m_Player;
@@ -83,7 +88,9 @@ public class PlayerController : MonoBehaviour
 	private float m_InputZ = 0f;
     
     //Bool pour bloquer les mouvements durant qu'on bloque
-    private bool m_CanBloque;
+    private bool m_CanBloqueHigh;
+	private bool m_CanBloqueLow;
+
     //Est-ce que je suis en train de dasher?
     private bool m_IsDashingHorizontal = false;
 	//Est-ce que je suis en train de dasher?
@@ -111,12 +118,14 @@ public class PlayerController : MonoBehaviour
     	m_RangeAttackCost = m_Data.RangeAttackCost;
     	m_RangeAttackDamage = m_Data.RangeAttackDamage;
     	m_DoubleTapDelay = m_Data.DoubleTapDelay;
-		m_Life = m_Data.Life;
+		m_Life = m_Data.LifeData;
 
 		m_ActualSpeedX = m_XMoveSpeed;
 		m_ActualSpeedZ = m_ZMoveSpeed;
 		m_BloqueObject.SetActive(false);
+		m_BloqueObject2.SetActive(false);
 	}
+
 
 	void Update () 
 	{
@@ -129,10 +138,18 @@ public class PlayerController : MonoBehaviour
 		//Debug.Log("Distance: " + m_Distance);
 		m_RelativeZDashSpeed = m_ZDashSpeed / m_Distance;
 
-		if(Input.GetButton("Bloque_p" + m_PlayerID))
+		if(Input.GetButton("Bloque_p" + m_PlayerID) && !m_CanBloqueHigh)
 		{
-        	m_CanBloque = true;
+        	m_CanBloqueLow = true;
 			m_BloqueObject.SetActive(true);
+			m_ActualSpeedX = m_XBloqueSpeed;
+			m_ActualSpeedZ = m_ZBloqueSpeed;
+			
+		}
+		else if(Input.GetButton("Bloque2_p" + m_PlayerID) && !m_CanBloqueLow)
+		{
+        	m_CanBloqueHigh = true;
+			m_BloqueObject2.SetActive(true);
 			m_ActualSpeedX = m_XBloqueSpeed;
 			m_ActualSpeedZ = m_ZBloqueSpeed;
 			
@@ -143,6 +160,12 @@ public class PlayerController : MonoBehaviour
         	m_AttackAnimation.Play("Attack");
 			m_Recovery += m_NormalAttackCost;
 		}
+		else if(Input.GetButtonDown("Fire3_p" + m_PlayerID) && m_Life >= m_NormalAttackCost+1)
+		{
+			m_Life -= m_NormalAttackCost;
+        	m_AttackAnimation2.Play("Attack2");
+			m_Recovery += m_NormalAttackCost;
+		}
 		else if(Input.GetButtonDown("Fire2_p" + m_PlayerID) && m_Life >= m_RangeAttackCost+1)
 		{    
         	Instantiate(m_AttackRangeBullet, m_AttackRangeSpawn.transform.position, m_AttackRangeSpawn.transform.rotation);
@@ -151,8 +174,10 @@ public class PlayerController : MonoBehaviour
 		}
 		else
 		{
-			m_CanBloque = false;
+			m_CanBloqueLow = false;
+			m_CanBloqueHigh = false;
 			m_BloqueObject.SetActive(false);
+			m_BloqueObject2.SetActive(false);
 		}
 		
 		if(m_Recovery > 0)
@@ -161,7 +186,7 @@ public class PlayerController : MonoBehaviour
 			m_Life += 1 * (Time.deltaTime * m_RecoveryTime);
 		}
 
-		if(m_IsDashingHorizontal || m_IsDashingVertical || m_CanBloque)
+		if(m_IsDashingHorizontal || m_IsDashingVertical || m_CanBloqueLow || m_CanBloqueHigh)
 		{
 			return;
 		}
@@ -251,6 +276,42 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	private void OnTriggerEnter(Collider aOther)
+	{
+		if (aOther.gameObject.layer == LayerMask.NameToLayer("Weapon"))
+		{		
+			//Juste pour le fun
+			float Recovery = (m_CanBloqueLow||m_CanBloqueHigh) ? m_NormalAttackDamage : 0f;
+
+			m_Life -= m_NormalAttackDamage;
+			m_Recovery += Recovery;
+
+			if(!m_CanBloqueLow || !m_CanBloqueHigh)
+			{
+				m_EnnemyController.m_Life += m_EnnemyController.m_Recovery;
+				m_EnnemyController.m_Recovery = 0; 
+			}
+		}
+		
+		if (aOther.gameObject.layer == LayerMask.NameToLayer("Bullet"))
+		{			
+			if (m_CanBloqueLow || m_CanBloqueHigh)
+			{
+				m_Life -= m_RangeAttackDamage/2;
+			}
+			else 
+			{
+				m_Life -= m_RangeAttackDamage;
+			}
+			Destroy(aOther.gameObject);
+		}
+
+		if(aOther.gameObject.layer == LayerMask.NameToLayer("Boundary"))
+		{
+			Destroy(gameObject);
+		}
+	}
+
 	private IEnumerator DashingHorizontal()
 	{
 		m_Life -= m_DashCost;
@@ -271,35 +332,5 @@ public class PlayerController : MonoBehaviour
 		yield return new WaitForSeconds(m_IsDashingTimer);
 		m_IsDashingHorizontal = false;
 		m_ActualSpeedZ = m_ZMoveSpeed;
-	}
-
-	private void OnTriggerEnter(Collider aOther)
-	{
-		if (aOther.gameObject.layer == LayerMask.NameToLayer("Weapon"))
-		{		
-			float Recovery = m_CanBloque ? m_NormalAttackDamage : 0f;
-
-			m_Life -= m_NormalAttackDamage;
-			m_Recovery += Recovery;
-
-			if(!m_CanBloque)
-			{
-				m_EnnemyController.m_Life += m_EnnemyController.m_Recovery;
-				m_EnnemyController.m_Recovery = 0; 
-			}
-		}
-		
-		if (aOther.gameObject.layer == LayerMask.NameToLayer("Bullet"))
-		{			
-			float DamageTake = m_CanBloque ? m_RangeAttackDamage/2 : m_RangeAttackDamage;
-			m_Life -= DamageTake;
-			Debug.Log("DamageTake: " + DamageTake + "Life: " + m_Life);
-			Destroy(aOther.gameObject);
-		}
-
-		if(aOther.gameObject.layer == LayerMask.NameToLayer("Boundary"))
-		{
-			Destroy(gameObject);
-		}
-	}
+	}	
 }
