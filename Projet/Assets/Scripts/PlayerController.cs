@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour 
 {
-    //Stamina/Vie maximum
+    public bool m_IsVerticalAttack = false;
+	//Stamina/Vie maximum
     private float m_Life;
 	public float Life
 	{
@@ -88,9 +89,10 @@ public class PlayerController : MonoBehaviour
 	private float m_InputZ = 0f;
     
     //Bool pour bloquer les mouvements durant qu'on bloque
-    private bool m_CanBloqueHigh;
-	private bool m_CanBloqueLow;
+    private bool m_CanBloqueHigh = false;
+	private bool m_CanBloqueLow = false;
 
+	
     //Est-ce que je suis en train de dasher?
     private bool m_IsDashingHorizontal = false;
 	//Est-ce que je suis en train de dasher?
@@ -133,7 +135,10 @@ public class PlayerController : MonoBehaviour
 		m_EnnemyPosition = m_Ennemy.transform.position;
 		//Mon Player regarde toujours en direction de l'ennemi
 		m_EnnemyPosition.y = transform.position.y;
-		transform.LookAt(m_EnnemyPosition);
+		if (!m_IsVerticalAttack)
+		{
+			transform.LookAt(m_EnnemyPosition);
+		}
 		m_Distance = Vector3.Distance(m_EnnemyPosition, m_Player.transform.position);
 		//Debug.Log("Distance: " + m_Distance);
 		m_RelativeZDashSpeed = m_ZDashSpeed / m_Distance;
@@ -162,6 +167,7 @@ public class PlayerController : MonoBehaviour
 		}
 		else if(Input.GetButtonDown("Fire3_p" + m_PlayerID) && m_Life >= m_NormalAttackCost+1)
 		{
+			m_IsVerticalAttack = true;
 			m_Life -= m_NormalAttackCost;
         	m_AttackAnimation2.Play("Attack2");
 			m_Recovery += m_NormalAttackCost;
@@ -310,6 +316,11 @@ public class PlayerController : MonoBehaviour
 		{
 			Destroy(gameObject);
 		}
+	}
+	
+	private void SetIsVerticalAttackFalse()
+	{
+		m_IsVerticalAttack = false;
 	}
 
 	private IEnumerator DashingHorizontal()
