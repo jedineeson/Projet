@@ -7,8 +7,9 @@ public class VertAttack : MonoBehaviour
 	[SerializeField]
 	private PlayerController m_PlayerController;
 
-	public void SetIsVerticalAttackFalse()
-	{
-		m_PlayerController.m_IsVerticalAttack = false;
-	}
+    //Est appellé par un Animation Event
+    public void SetIsVerticalAttackFalse()
+    {
+        m_PlayerController.SetIsVerticalAttackFalse();
+    }
 }

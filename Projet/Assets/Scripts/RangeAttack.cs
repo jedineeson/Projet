@@ -2,23 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangeAttack : MonoBehaviour 
+public class RangeAttack : MonoBehaviour
 {
-	public Rigidbody m_RigidBody;
-    public float m_Speed;
+    [SerializeField]
+	private Rigidbody m_RigidBody;
+    [SerializeField]
+    private float m_Speed;
 
     private void Start ()
     {
         m_RigidBody.velocity = transform.forward * m_Speed;
     }
 
-
 	private void OnTriggerEnter(Collider aOther)
 	{
+        //détruit ma balle si elle entre en collision avec les frontières de mon terrain(box collider)
         if(aOther.gameObject.layer == LayerMask.NameToLayer("Boundary"))
 	    {
 	    	Destroy(gameObject);
     	}
     }
-
 }

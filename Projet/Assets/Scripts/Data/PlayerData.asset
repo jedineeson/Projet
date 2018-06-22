@@ -19,10 +19,10 @@ MonoBehaviour:
   m_XDashSpeed: 15
   m_XBloqueSpeed: 2.5
   m_RecoveryTime: 4
-  m_DataLife: 100
+  m_DataLife: 300
   m_DashCost: 10
   m_NormalAttackCost: 10
   m_NormalAttackDamage: 20
-  m_RangeAttackCost: 10
+  m_RangeAttackCost: 15
   m_RangeAttackDamage: 10
   m_DoubleTapDelay: 0.5
